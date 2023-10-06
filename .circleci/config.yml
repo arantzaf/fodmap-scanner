@@ -1,0 +1,16 @@
+version: 2.1
+
+jobs:
+    build-react-app:
+        docker:
+            - image: cimg/node:13.8.0
+
+        steps:
+            - checkout
+            - run:
+                name: build and run app
+                command: |
+                    cd react-app
+                    npm install
+                    npm test
+                    npm run build
