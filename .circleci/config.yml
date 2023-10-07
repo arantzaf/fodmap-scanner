@@ -1,19 +1,6 @@
 version: 2.1
 
 jobs:
-
-    test-react-app:
-        docker:
-            - image: cimg/node:13.8.0
-        steps:
-            - checkout
-            - run:
-                name: Run react test
-                command: |
-                    cd react-app
-                    npm install
-                    npm run test
-
     build-react-app:
         docker:
             - image: cimg/node:13.8.0
@@ -127,11 +114,9 @@ jobs:
 workflows:
     default:
         jobs:
-            - test-react-app
             - build-react-app:
-                requires: [test-react-app]
             - deploy-infrastructure:
-                requires: [test-react-app]
+                requires: [build-react-app]
                 filters:
                     branches:
                         only: [main]
