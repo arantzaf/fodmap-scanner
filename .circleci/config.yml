@@ -106,7 +106,7 @@ jobs:
                     cd react-app
                     npm install
                     npm run build
-                    aws s3 cp dist s3://react-app-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+                    aws s3 cp build s3://react-app-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
     # smoke-test:
 
