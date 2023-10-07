@@ -135,7 +135,7 @@ workflows:
             - deploy-infrastructure:
                 requires: [test-react-app]
                 filters:
-                    branch:
+                    branches:
                         only: [main]
             # - configure-infrastructure:
             #     requires: [deploy-infrastructure]
