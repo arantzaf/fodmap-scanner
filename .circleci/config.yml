@@ -114,7 +114,7 @@ jobs:
 workflows:
     default:
         jobs:
-            - build-react-app:
+            - build-react-app
             - deploy-infrastructure:
                 requires: [build-react-app]
                 filters:
