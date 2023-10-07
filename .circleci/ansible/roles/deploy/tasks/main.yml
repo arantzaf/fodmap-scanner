@@ -1,0 +1,27 @@
+---
+- name: "create backend directory"
+  file:
+    path: ~/backend
+    state: directory
+
+- name: "copy and unzip backend files"
+  unarchive:
+    src: files/artifact.tar.gz
+    dest: ~/backend
+
+- name: "install dependencies"
+  shell: |
+    cd ~/backend
+    npm i
+
+- name: "start node"
+  shell: |
+    cd ~/backend/dist
+    pm2 delete all
+    pm2 start main.js
+    
+  register: start_node
+
+- name: print response
+  debug: |
+    msg: "{{start_node.stdout_lines}}"

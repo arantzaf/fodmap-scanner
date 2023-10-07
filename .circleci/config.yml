@@ -7,10 +7,141 @@ jobs:
 
         steps:
             - checkout
+            - restore_cache:
+                keys: [frontend-build]
             - run:
-                name: build and run app
+                name: build react frontend
                 command: |
                     cd react-app
                     npm install
-                    npm test
                     npm run build
+            - save_cache:
+                paths: [react-app/node_modules]
+                key: frontend-build
+    
+    test-react-app:
+        docker:
+            - image: cimg/node:13.8.0
+        steps:
+            - checkout
+            - restore_cache:
+                keys: [frontend-build]
+            - run:
+                name: Run react test
+                command: |
+                    cd react-app
+                    npm install
+                    npm run test
+    
+    deploy-infrastructure:
+        docker:
+            - image: amazon/aws-cli
+        steps:
+            - checkout
+            - run:
+                name: intall tar utility for persist to workspace
+                command: |
+                    yum install -y tar gzip
+            - run:
+                name: create s3 bucket
+                command: |
+                    aws cloudformation deploy \
+                        --template-file .circleci/files/bucket.yml \
+                        --stack-name "react-bucket-${CIRCLE_WORKFLOW_ID:0:7}" \
+                        --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+                        --tags project=react-app
+            # - run:
+            #     name: create server
+            #     command: |
+            #         aws cloudformation deploy \
+            #             --template-file .circleci/files/server.yml \
+            #             --stack-name "react-server-${CIRCLE_WORKFLOW_ID:0:7}" \
+            #             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+            #             --tags project=react-app
+            # - run:
+            #     name: add ip to ansible inventory
+            #     command: |
+            #         cd .circleci/ansible
+            #         aws ec2 describe-instances \
+            #         --filters "Name=tag:Name,Values=react-app-${CIRCLE_WORKFLOW_ID:0:7}" \
+            #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            #         --output text >> inventory.txt
+            - persist_to_workspace:
+                root: ~/
+                paths:
+                    - project/.circleci/ansible/inventory.txt
+    
+    # server configuration 
+    configure-infrastructure:
+        docker:
+            - image: python:3.10-alpine3.17
+        steps:
+            - checkout
+            - add_ssh_key:
+                fingerprints: ["96:0d:85:8d:b6:d0:8f:e4:a5:46:4d:3d:1a:86:35:16"]
+            - attach_workspace:
+                at: ~/
+            - run:
+                name: install dependencies
+                command: |
+                    apk add --update ansible
+            - run:
+                name: install command dependencies
+                command: |
+                    pip3 install --upgrade pip
+                    pip3 install --no-cache-dir awscli
+            - run:
+                name: configure server
+                command: |
+                    cd .circleci/ansible
+                    ansible-playbook -i inventory.txt configure-server.yml
+
+    deploy-react-app:
+        docker:
+            - image: amazon/aws-cli
+        steps:
+            - checkout
+            - run:
+                name: intall tar utility for persist to workspace
+                command: |
+                    yum install -y tar gzip
+            - restore_cache:
+                keys: [frontend-build]
+            - run:
+                name: Update and upgrade
+                command: |
+                    yum update -y
+                    yum upgrade -y
+            - run:
+                name: Install Node and Deploy frontend objects
+                command: |
+                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+                    . ~/.nvm/nvm.sh
+                    nvm install 16
+                    cd react-app
+                    npm install
+                    npm run build
+                    aws s3 cp dist s3://react-app-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+
+    # smoke-test:
+
+
+workflows:
+    default:
+        jobs:
+            - build-react-app
+            - test-react-app:
+                requires: [build-react-app]
+            - deploy-infrastructure:
+                requires: [test-react-app]
+                filters:
+                    branch:
+                        only: [main]
+            # - configure-infrastructure:
+            #     requires: [deploy-infrastructure]
+            - deploy-react-app:
+                requires: [deploy-infrastructure]
+                # requires: [configure-infrastructure]
+            # - smoke-test:
+            #     requires: [deploy-react-app]
+

@@ -1,6 +1,20 @@
 # FODMAP-SCANNER
 
-## Docker basics
+## Running `app.py`
+
+1. Standalone:  `npm run build`
+2. Run in Docker:  `./run_docker.sh`
+3. Run in Kubernetes:  `./run_kubernetes.sh`
+
+
+### Kubernetes Steps
+
+* Setup and Configure Docker locally
+* Setup and Configure Kubernetes locally
+* Create Flask app in Container
+* Run via kubectl
+
+### Docker basics
 To create Docker image, from root folder
 
     docker image build -t floresarantza/fodmap-react-app:latest .
