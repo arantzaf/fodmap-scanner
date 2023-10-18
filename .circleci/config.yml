@@ -19,6 +19,8 @@ jobs:
                 name: Run Test
                 command: |
                     cd react-app
+                    npm install -g npm@latest
+                    rm -rf node_modules
                     npm install
                     npm run test
 
