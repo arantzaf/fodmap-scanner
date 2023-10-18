@@ -15,7 +15,7 @@ jobs:
             - image: cimg/node:13.8.0
         steps:
             - checkout
-            - run
+            - run:
                 name: Run Test
                 command: |
                     cd react-app
