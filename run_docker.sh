@@ -12,4 +12,4 @@ docker image ls
 
 # Step 3: 
 # Run flask app
-docker run -p 8001:3000 fodmap-react-app
+docker run -p 8000:3000 fodmap-react-app

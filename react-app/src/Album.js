@@ -63,12 +63,11 @@ export default function Album() {
               color="text.primary"
               gutterBottom
             >
-              Album layout
+              FODMAP Scanner
             </Typography>
             <Typography variant="h5" align="center" color="text.secondary" paragraph>
-              Something short and leading about the collection below—its contents,
-              the creator, etc. Make it short and sweet, but not too short so folks
-              don&apos;t simply skip over it entirely.
+              Upload image of ingredients on packaging, the scanner will then flag any 
+              ingredients that are not low-fodmap diet friendly.
             </Typography>
             <Stack
               sx={{ pt: 4 }}
@@ -76,12 +75,12 @@ export default function Album() {
               spacing={2}
               justifyContent="center"
             >
-              <Button variant="contained">Main call to action</Button>
-              <Button variant="outlined">Secondary action</Button>
+              <Button variant="contained">Upload Image</Button>
+              {/* <Button variant="outlined">Secondary action</Button> */}
             </Stack>
           </Container>
         </Box>
-        <Container sx={{ py: 8 }} maxWidth="md">
+        <Container sx={{ py: 8 }} maxWidth="lg">
           {/* End hero unit */}
           <Grid container spacing={4}>
             {cards.map((card) => (

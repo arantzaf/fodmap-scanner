@@ -1,6 +1,14 @@
 version: 2.1
 
 jobs:
+    hadolint:
+        docker:
+            - image: pipelinecomponents/hadolint
+        steps:
+            - checkout
+            - run:
+                name: run hadolint
+                command: hadolint Dockerfile
     build-react-app:
         docker:
             - image: cimg/node:13.8.0
@@ -14,6 +22,12 @@ jobs:
                     cd react-app
                     npm install
                     npm run build
+            - run:
+                name: build and push Docker image
+                command: |
+                    docker build -t floresarantza/fodmap-react-app:$TAG
+                    echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
+                    docker push floresarantza/fodmap-react-app:$TAG
             - save_cache:
                 paths: [react-app/node_modules]
                 key: frontend-build
@@ -114,16 +128,18 @@ jobs:
 workflows:
     default:
         jobs:
-            - build-react-app
-            - deploy-infrastructure:
-                requires: [build-react-app]
-                filters:
-                    branches:
-                        only: [main]
+            - hadolint
+            # - build-react-app:
+            #     requires: [hadolint]]
+            # - deploy-infrastructure:
+            #     requires: [build-react-app]
+            #     filters:
+            #         branches:
+            #             only: [main]
             # - configure-infrastructure:
             #     requires: [deploy-infrastructure]
-            - deploy-react-app:
-                requires: [deploy-infrastructure]
+            # - deploy-react-app:
+            #     requires: [deploy-infrastructure]
                 # requires: [configure-infrastructure]
             # - smoke-test:
             #     requires: [deploy-react-app]
