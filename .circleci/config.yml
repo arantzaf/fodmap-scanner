@@ -4,10 +4,9 @@ workflows:
     default:
         jobs:
             - hadolint
-            - build-npm-run:
-                requires: [hadolint]
-            - build-docker-image:
-                requires: [hadolint]
+            # - build-npm-run
+            # - build-docker-image:
+            #     requires: [hadolint]
             # - deploy-infrastructure:
             #     requires: [build-react-app]
             #     filters:
@@ -22,6 +21,8 @@ workflows:
             #     requires: [deploy-react-app]
 
 jobs:
+    #jobs below this are build and deploy app with docker and kubernetes
+    #lint dockerfile
     hadolint:
         docker:
             - image: pipelinecomponents/hadolint
@@ -30,7 +31,46 @@ jobs:
             - run:
                 name: run hadolint
                 command: hadolint Dockerfile
-
+    # create docker image and push to docker hub
+    build-docker-image:
+        docker:
+            - image: cimg/go:1.17
+        steps:
+            - checkout
+            - setup_remote_docker:
+                version: 20.10.14
+                docker_layer_caching: true
+            - run:
+                name: build and push Docker image
+                command: |
+                    docker build . -t floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
+                    docker login -u $DOCKER_LOGIN -p $DOCKER_PWD
+                    docker push floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
+    # deploy app to cluster
+    deploy-cluster:
+        docker:
+            - image: python:3.10-alpine3.17
+        steps:
+            - checkout
+            - run:
+                name: install ansible
+                command: |
+                    apk add --update ansible
+            - run:
+                name: install command dependencies
+                command: |
+                    pip3 install --upgrade pip
+                    pip3 install --no-cache-dir awscli
+            - run:
+                name: configure EKS Cluster
+                command: |
+                    ansible-playbook -vv .circleci/ansible/configure-cluster.yml
+            - run:
+                name: deploy docker image to cluster
+                command: |
+                    ansible-playbook -vv  .circleci/ansible/deploy-image.yml
+    #jobs below this are app build and deploy in AWS infrastructure (s3 bucket)
+    #build app node
     build-npm-run:
         docker:
             - image: cimg/node:13.8.0
@@ -48,21 +88,7 @@ jobs:
                 paths: [react-app]
                 key: frontend-build
 
-    build-docker-image:
-        docker:
-            - image: cimg/go:1.17
-        steps:
-            - checkout
-            - setup_remote_docker:
-                version: 20.10.14
-                docker_layer_caching: true
-            - run:
-                name: build and push Docker image
-                command: |
-                    docker build . -t floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
-                    docker login -u $DOCKER_LOGIN -p $DOCKER_PWD
-                    docker push floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
-    
+    # deploy s3 bucket for app
     deploy-infrastructure:
         docker:
             - image: amazon/aws-cli
@@ -100,32 +126,7 @@ jobs:
                 root: ~/
                 paths:
                     - project/.circleci/ansible/inventory.txt
-    
-    # server configuration 
-    configure-infrastructure:
-        docker:
-            - image: python:3.10-alpine3.17
-        steps:
-            - checkout
-            - add_ssh_key:
-                fingerprints: ["96:0d:85:8d:b6:d0:8f:e4:a5:46:4d:3d:1a:86:35:16"]
-            - attach_workspace:
-                at: ~/
-            - run:
-                name: install dependencies
-                command: |
-                    apk add --update ansible
-            - run:
-                name: install command dependencies
-                command: |
-                    pip3 install --upgrade pip
-                    pip3 install --no-cache-dir awscli
-            - run:
-                name: configure server
-                command: |
-                    cd .circleci/ansible
-                    ansible-playbook -i inventory.txt configure-server.yml
-
+    # deploy react app to s3 bucket
     deploy-react-app:
         docker:
             - image: amazon/aws-cli
@@ -152,5 +153,3 @@ jobs:
                     npm install
                     npm run build
                     aws s3 cp build s3://react-app-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-
-    # smoke-test:
