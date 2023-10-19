@@ -1,5 +1,24 @@
 version: 2.1
 
+workflows:
+    default:
+        jobs:
+            - hadolint
+            - build-react-app:
+                requires: [hadolint]
+            # - deploy-infrastructure:
+            #     requires: [build-react-app]
+            #     filters:
+            #         branches:
+            #             only: [main]
+            # - configure-infrastructure:
+            #     requires: [deploy-infrastructure]
+            # - deploy-react-app:
+            #     requires: [deploy-infrastructure]
+                # requires: [configure-infrastructure]
+            # - smoke-test:
+            #     requires: [deploy-react-app]
+
 jobs:
     hadolint:
         docker:
@@ -27,10 +46,10 @@ jobs:
                 name: build and push Docker image
                 command: |
                     docker build . -t floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
-                    echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
+                    docker login -u $DOCKER_LOGIN -p $DOCKER_PWD
                     docker push floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
             - save_cache:
-                paths: [react-app/node_modules]
+                paths: [react-app]
                 key: frontend-build
     
     deploy-infrastructure:
@@ -124,24 +143,3 @@ jobs:
                     aws s3 cp build s3://react-app-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
     # smoke-test:
-
-
-workflows:
-    default:
-        jobs:
-            - hadolint
-            - build-react-app:
-                requires: [hadolint]
-            # - deploy-infrastructure:
-            #     requires: [build-react-app]
-            #     filters:
-            #         branches:
-            #             only: [main]
-            # - configure-infrastructure:
-            #     requires: [deploy-infrastructure]
-            # - deploy-react-app:
-            #     requires: [deploy-infrastructure]
-                # requires: [configure-infrastructure]
-            # - smoke-test:
-            #     requires: [deploy-react-app]
-
