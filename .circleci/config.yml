@@ -50,16 +50,18 @@ jobs:
 
     build-docker-image:
         docker:
-            - image: cimg/python:3.12.0
+            - image: cimg/go:1.17
         steps:
             - checkout
+            - setup_remote_docker:
+                version: 20.10.14
+                docker_layer_caching: true
             - run:
                 name: build and push Docker image
                 command: |
                     docker build . -t floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
                     docker login -u $DOCKER_LOGIN -p $DOCKER_PWD
                     docker push floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
-            
     
     deploy-infrastructure:
         docker:
