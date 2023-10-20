@@ -22,8 +22,8 @@
       shell: |
         curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz"
         tar -xzf "eksctl_Linux_amd64.tar.gz" -C .
-        rm "eksctl_Linux_amd64.tar.gz"
-        sudo mv . /usr/local/bin
+        rm eksctl_Linux_amd64.tar.gz
+        sudo mv eksctl /usr/local/bin
         eksctl --version
 
     - name: Install kubectl
