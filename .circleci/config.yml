@@ -3,14 +3,14 @@ version: 2.1
 workflows:
     default:
         jobs:
-            # - hadolint
-            # - build-docker-image:
-            #     requires: [hadolint]
-            - deploy-cluster
-                # requires: [build-react-app]
-                # filters:
-                #     branches:
-                #         only: [main]
+            - hadolint
+            - build-docker-image:
+                requires: [hadolint]
+            - deploy-cluster:
+                requires: [build-docker-image]
+                filters:
+                    branches:
+                        only: [main]
 
 jobs:
     #jobs below this are build and deploy app with docker and kubernetes
@@ -73,10 +73,16 @@ jobs:
                 name: deploy docker image to cluster
                 command: |
                     ansible-playbook -vv  .circleci/ansible/deploy-image.yml
-            # - run:
-            #     name: deploy image to eks
-            #     command: |
-            #         kubectl set image -n fodmapNamespace deployments/fodmap-deployment fodmap-react-app=floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
+            - run:
+                name:
+                command: |
+                    aws eks update-kubeconfig --region ${AWS_DEFAULT_REGION} --name fodmapCluster
+                    export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                    export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+            - run:
+                name: deploy image to eks
+                command: |
+                    kubectl set image -n fodmap-namespace deployments/fodmap-deployment fodmap-app=floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
                     
     #jobs below this are app build and deploy in AWS infrastructure (s3 bucket)
     #build app node

@@ -32,7 +32,7 @@
 
 - name: Check if namespace already exists
   shell: |
-    kubectl get namespace fodmapNamespace
+    kubectl get namespace fodmap-namespace
   register: namespace_info
   ignore_errors: yes
   changed_when: false
