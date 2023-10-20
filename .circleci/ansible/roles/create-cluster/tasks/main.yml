@@ -6,14 +6,6 @@
     aws configure set default.region {{ AWS_REGION }}
     aws --version
 
-- name: Install eksctl
-  shell: |
-    curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz"
-    tar -xzf "eksctl_Linux_amd64.tar.gz" -C .
-    rm eksctl_Linux_amd64.tar.gz
-    sudo mv eksctl /usr/local/bin
-    eksctl version
-
 - name: Install kubectl
   shell: |
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -27,17 +19,21 @@
  
 - name: Configure kubectl to EKS cluster
   shell: |
-    aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmapCluster
+    aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmap-cluster
     KUBECONFIG=$HOME/.kube/config
 
 - name: Check if namespace already exists
   shell: |
-    kubectl get namespace fodmap-namespace
+    kubectl get namespace fodmap-react
   register: namespace_info
   ignore_errors: yes
   changed_when: false
 
 - name: Create Namespace
   shell: |
-    kubectl create namespace fodmap-namespace
+    kubectl create namespace fodmap-react
   when: namespace_info.rc != 0
+
+- name: set default context
+  shell: |
+    kubectl config set-context --current --namespace=fodmap-react

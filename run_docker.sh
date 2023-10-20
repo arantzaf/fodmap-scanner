@@ -11,4 +11,4 @@ docker image build -t fodmap-react-app .
 docker image ls
 
 # Step 3: 
-docker run -p 8000:3000 fodmap-react-app
+docker run -p 80:3000 fodmap-react-app

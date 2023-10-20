@@ -32,12 +32,17 @@ jobs:
             - setup_remote_docker:
                 version: 20.10.14
                 docker_layer_caching: true
-            - run:
-                name: build and push Docker image
+            - run: 
+                name: build and tag
                 command: |
                     docker build . -t floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
+                    docker tag floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4} floresarantza/fodmap-react-app:latest
+            - run:
+                name: login and push Docker image
+                command: |
                     docker login -u $DOCKER_LOGIN -p $DOCKER_PWD
                     docker push floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
+                    docker push floresarantza/fodmap-react-app:latest
     # deploy app to cluster
     deploy-cluster:
         docker:
@@ -82,7 +87,7 @@ jobs:
             - run:
                 name: deploy image to eks
                 command: |
-                    kubectl set image -n fodmap-namespace deployments/fodmap-deployment fodmap-app=floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
+                    kubectl set image -n fodmap-react deployments/fodmap-react fodmap-react=floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
                     
     #jobs below this are app build and deploy in AWS infrastructure (s3 bucket)
     #build app node

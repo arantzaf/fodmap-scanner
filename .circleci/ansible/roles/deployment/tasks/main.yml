@@ -1,10 +1,20 @@
 ---
 - name: Copy deployment config
   copy:
-    src: "fodmap.yml"
+    src: "deployment.yml"
+    dest: /
+
+- name: Copy service config
+  copy:
+    src: "service.yml"
     dest: /
 
 - name: Apply deployment config
-  shell: "kubectl apply -f fodmap.yml"
+  shell: "kubectl apply -f deployment.yml"
+  args:
+    chdir: /
+
+- name: Apply service config
+  shell: "kubectl apply -f service.yml"
   args:
     chdir: /
