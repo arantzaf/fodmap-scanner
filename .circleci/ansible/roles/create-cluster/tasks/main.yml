@@ -39,5 +39,5 @@
 
 - name: Create Namespace
   shell: |
-    kubectl create namespace fodmapNamespace
+    kubectl create namespace fodmap-namespace
   when: namespace_info.rc != 0
