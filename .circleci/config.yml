@@ -48,11 +48,14 @@ jobs:
                 name: install command dependencies
                 command: |
                     pip3 install --upgrade pip
-                    pip3 install --no-cache-dir awscli
             - run:
                 name: install ansible
                 command: |
                     pip install ansible
+            - run:
+                name: install aws cli
+                command: |
+                    pip install awscli
             - run:
                 name: verify installations
                 command: |
