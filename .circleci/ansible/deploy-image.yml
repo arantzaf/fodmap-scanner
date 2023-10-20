@@ -1,0 +1,7 @@
+---
+- name: Deploy Image to EKS Cluster
+  hosts: localhost
+  gather_facts: false
+  become: yes
+  roles:
+    - deployment

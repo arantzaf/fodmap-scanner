@@ -69,10 +69,10 @@ jobs:
                 name: configure EKS Cluster
                 command: |
                     ansible-playbook -vv .circleci/ansible/configure-cluster.yml
-            # - run:
-            #     name: deploy docker image to cluster
-            #     command: |
-            #         ansible-playbook -vv  .circleci/ansible/deploy-image.yml
+            - run:
+                name: deploy docker image to cluster
+                command: |
+                    ansible-playbook -vv  .circleci/ansible/deploy-image.yml
             # - run:
             #     name: deploy image to eks
             #     command: |

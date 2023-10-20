@@ -1,0 +1,10 @@
+---
+- name: Copy deployment config
+  copy:
+    src: "fodmap.yml"
+    dest: /
+
+- name: Apply deployment config
+  shell: "kubectl apply -f fodmap.yml"
+  args:
+    chdir: /
