@@ -19,10 +19,22 @@
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     kubectl version --client=true
-    
+
+- name: Check if cluster exists
+  shell: |
+    eksctl get cluster --name fodmapCluster --region {{ AWS_REGION }}
+  register: cluster_info
+  ignore_errors: yes
+  changed_when: false
+
+- name: create eks cluster
+  shell: |
+    eksctl create cluster --name fodmapCluster --region={{ AWS_REGION }}
+  when: cluster_info.rc != 0
+
 - name: Configure kubectl to EKS cluster
   shell: |
-    aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmap-cluster
+    aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmapCluster
 
 - name: check config
   shell: |
