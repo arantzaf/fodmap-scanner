@@ -27,18 +27,10 @@
   ignore_errors: yes
   changed_when: false
 
-- name: create eks cluster
-  shell: |
-    eksctl create cluster --name fodmapCluster --region={{ AWS_REGION }}
-  when: cluster_info.rc != 0
-
 - name: Configure kubectl to EKS cluster
   shell: |
     aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmapCluster
-
-- name: check config
-  shell: |
-    kubectl config current-context
+  when: cluster_info.rc != 0
 
 - name: Check if namespace already exists
   shell: |
