@@ -1,4 +1,25 @@
 ---
+- name: Configure AWS CLI
+  shell: |
+    aws configure set aws_access_key_id {{ AWS_KEY_ID }}
+    aws configure set aws_secret_access_key {{ AWS_SECRET_ACCESS_KEY }}
+    aws configure set default.region {{ AWS_REGION }}
+    aws --version
+
+- name: Install eksctl
+  shell: |
+    curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz"
+    tar -xzf "eksctl_Linux_amd64.tar.gz" -C .
+    rm eksctl_Linux_amd64.tar.gz
+    sudo mv eksctl /usr/local/bin
+    eksctl version
+
+- name: Install kubectl
+  shell: |
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    kubectl version --client=true
+    
 - name: Configure kubectl to EKS cluster
   shell: |
     aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmap-cluster
