@@ -24,6 +24,10 @@
   shell: |
     aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmap-cluster
 
+- name: check config
+  shell: |
+    kubectl config current-context
+
 - name: Check if namespace already exists
   shell: |
     kubectl get namespace fodmapNamespace
