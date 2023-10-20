@@ -24,7 +24,7 @@
         tar -xzf "eksctl_Linux_amd64.tar.gz" -C .
         rm eksctl_Linux_amd64.tar.gz
         sudo mv eksctl /usr/local/bin
-        eksctl --version
+        eksctl version
 
     - name: Install kubectl
       shell: |
