@@ -4,21 +4,13 @@ workflows:
     default:
         jobs:
             - hadolint
-            # - build-npm-run
             # - build-docker-image:
             #     requires: [hadolint]
-            # - deploy-infrastructure:
-            #     requires: [build-react-app]
-            #     filters:
-            #         branches:
-            #             only: [main]
-            # - configure-infrastructure:
-            #     requires: [deploy-infrastructure]
-            # - deploy-react-app:
-            #     requires: [deploy-infrastructure]
-                # requires: [configure-infrastructure]
-            # - smoke-test:
-            #     requires: [deploy-react-app]
+            - deploy-cluster
+                # requires: [build-react-app]
+                # filters:
+                #     branches:
+                #         only: [main]
 
 jobs:
     #jobs below this are build and deploy app with docker and kubernetes
@@ -62,13 +54,24 @@ jobs:
                     pip3 install --upgrade pip
                     pip3 install --no-cache-dir awscli
             - run:
+                name: verify installations
+                command: |
+                    ansible --version
+                    pip --version
+                    aws --version
+            - run:
                 name: configure EKS Cluster
                 command: |
                     ansible-playbook -vv .circleci/ansible/configure-cluster.yml
-            - run:
-                name: deploy docker image to cluster
-                command: |
-                    ansible-playbook -vv  .circleci/ansible/deploy-image.yml
+            # - run:
+            #     name: deploy docker image to cluster
+            #     command: |
+            #         ansible-playbook -vv  .circleci/ansible/deploy-image.yml
+            # - run:
+            #     name: deploy image to eks
+            #     command: |
+            #         kubectl set image -n fodmapNamespace deployments/fodmap-deployment fodmap-react-app=floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
+                    
     #jobs below this are app build and deploy in AWS infrastructure (s3 bucket)
     #build app node
     build-npm-run:

@@ -4,4 +4,4 @@ services:
   web:
     image: floresarantza/fodmap-react-app:latest
     ports:
-     - "8001:3000"
+     - "8000:3000"
