@@ -19,7 +19,12 @@
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
     kubectl version --client=true
-
+    
+- name: export aws keys
+  shell: |
+    export AWS_ACCESS_KEY_ID={{ AWS_KEY_ID }}
+    export AWS_SECRET_ACCESS_KEY={{ AWS_SECRET_ACCESS_KEY }}
+ 
 - name: Check if cluster exists
   shell: |
     eksctl get cluster --name fodmapCluster --region {{ AWS_REGION }}
