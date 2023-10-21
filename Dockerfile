@@ -1,5 +1,6 @@
 FROM node:18-alpine
 
+THIS IS BROKEN
 WORKDIR /react-app/
 
 COPY /react-app/public /react-app/public
