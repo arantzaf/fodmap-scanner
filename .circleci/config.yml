@@ -17,12 +17,12 @@ jobs:
     #lint dockerfile
     hadolint:
         docker:
-            - image: pipelinecomponents/hadolint
+            - image: cimg/go:1.17
         steps:
             - checkout
             - run:
                 name: run hadolint
-                command: hadolint Dockerfile
+                command: docker run --rm -i hadolint/hadolint < Dockerfile
     # create docker image and push to docker hub
     build-docker-image:
         docker:
