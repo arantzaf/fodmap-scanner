@@ -81,13 +81,13 @@ jobs:
             - run:
                 name:
                 command: |
-                    aws eks update-kubeconfig --region ${AWS_DEFAULT_REGION} --name fodmap-cluster
+                    aws eks update-kubeconfig --region ${AWS_DEFAULT_REGION} --name fodmap-eks
                     export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
                     export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
             - run:
-                name: deploy image to eks
+                name: validate deployment
                 command: |
-                    kubectl set image -n fodmap-react deployments/fodmap-react fodmap-react=floresarantza/fodmap-react-app:${CIRCLE_WORKFLOW_ID:0:4}
+                    kubectl get all -n fodmap-react
                     
     #jobs below this are app build and deploy in AWS infrastructure (s3 bucket)
     #build app node

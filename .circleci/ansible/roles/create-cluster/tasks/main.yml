@@ -19,7 +19,7 @@
  
 - name: Configure kubectl to EKS cluster
   shell: |
-    aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmap-cluster
+    aws eks update-kubeconfig --region {{ AWS_REGION }} --name fodmap-eks
     KUBECONFIG=$HOME/.kube/config
 
 - name: Check if namespace already exists
