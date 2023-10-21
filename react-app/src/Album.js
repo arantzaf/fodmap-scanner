@@ -63,7 +63,7 @@ export default function Album() {
               color="text.primary"
               gutterBottom
             >
-              FODMAP Scanner
+              FODMAP Scanner - NEW!
             </Typography>
             <Typography variant="h5" align="center" color="text.secondary" paragraph>
               Upload image of ingredients on packaging, the scanner will then flag any 
@@ -94,15 +94,14 @@ export default function Album() {
                       // 16:9
                       pt: '56.25%',
                     }}
-                    image="https://source.unsplash.com/random?wallpapers"
+                    image="../public/ingredients.JPG"
                   />
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography gutterBottom variant="h5" component="h2">
-                      Heading
+                      Some Food Ingredient Picture
                     </Typography>
                     <Typography>
-                      This is a media card. You can use this section to describe the
-                      content.
+                      These are the ingredients in the food above.
                     </Typography>
                   </CardContent>
                   <CardActions>
